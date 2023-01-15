@@ -21,7 +21,6 @@ import atsignal
 def interrupt():
   print("SIGINT")
 
-@sigterm
 def terminate():
   print("SIGTERM")
 

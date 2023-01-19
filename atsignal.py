@@ -14,9 +14,9 @@ SIGTERM = const(15)
 class SignalHandler(object):
     _instance = None
     HANDLERS = {}
-    def new(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(SignalHandler, cls).new(cls, *args, **kwargs)
+            cls._instance = super(SignalHandler, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
     @classmethod

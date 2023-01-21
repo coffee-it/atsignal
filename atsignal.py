@@ -1,5 +1,6 @@
 import signal
 from sys import exit as sys_exit
+from functools import partial
 from micropython import const
 import logging, time
 
@@ -8,7 +9,6 @@ atsignal_log = logging.getLogger("atsignal")
 # SIG_DFL = const(0)
 # SIG_IGN = const(1)
 SIGINT  = const(2)
-SIGPIPE = const(13)
 SIGTERM = const(15)
 
 class SignalHandler(object):
@@ -20,11 +20,17 @@ class SignalHandler(object):
         return cls._instance
 
     @classmethod
-    def register(cls, signum:int, callback:function):
+    def register(cls, signum:int, callback:function, *args, **kwargs):
         if signum in cls.HANDLERS:
-            cls.HANDLERS[signum].append(callback)
+            if args:
+                cls.HANDLERS[signum].append(partial(callback, *args, **kwargs))
+            else:
+                cls.HANDLERS[signum].append(callback)
         else:
-            cls.HANDLERS.update({signum: [callback]})
+            if args:
+                cls.HANDLERS.update({signum: [partial(callback, *args, **kwargs)]})
+            else:
+                cls.HANDLERS.update({signum: [callback]})
             atsignal_log.debug("Bind signal to %s %s" % (signum, cls.signal_wrapper))
             signal.signal(signum, cls.signal_wrapper)
 
